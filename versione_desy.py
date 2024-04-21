@@ -3,44 +3,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-##################################### Function ####################################
+fcost = lambda x: 1
+tcost = (-1,1,2.5)
 
-
+f1 = lambda x : (1/6)*x**6-(52/25)*x**5+(39/80)*x**4+(71/10)*x**3-(79/20)*x**2-x+(1/10)
+t1 = (-1.5, 11, 13870)
+f2 = lambda x : math.sin(x)+math.sin(10*x/3)
+t2 = (2.7, 7.5, 4.29)
+f3 = lambda x: sum(k*math.sin((k+1)*x+k) for k in range(1, 6))
+t3 = (-10, 10, 67)
+f4 = lambda x : -(16*x**2-24*x+5)*math.exp(-x)
+t4 = (1.9, 3.9, 3)
+f5 = lambda x : (3*x-1.4)*math.sin(18*x)
+t5 = (0, 1.2, 36)
+f6 = lambda x : -(x+math.sin(x))*math.exp(-(x**2))
+t6 = (-10, 10, 2.5)
+f7 = lambda x : math.sin(x)+math.sin(10*x/3)+math.log(x)-0.84*x+3
+t7 = (2.7, 7.5, 6)
+f8 = lambda x: sum(k*math.cos((k+1)*x+k) for k in range(1, 6))
+t8 = (-10, 10, 67)
 f9 = lambda x : math.sin(x)+math.sin(2*x/3)
-t9=(3.1,20.4,1.7)
-
+t9 = (3.1, 20.4, 1.7)
 f10 = lambda x : -x*math.sin(x)
-t10=(0,10,11)
-
+t10 = (0, 10, 11)
 f11 = lambda x : 2*math.cos(x)+math.cos(2*x)
-t11=(-1.57,6.28,3)
-
+t11 = (-1.57, 6.28, 3)
 f12 = lambda x : (math.sin(x))**3+(math.cos(x))**3
-t12=(0,6.28,2.2)
-
-f13 = lambda x : -(x**(2/3))+math.cbrt(x**2-1) 
-t13=(0.001,0.99,8.5)
-
+t12 = (0, 6.28, 2.2)
+f13 = lambda x : -(x**(2/3))+math.cbrt(x**2-1)
+t13 = (0.001, 0.99, 8.5)
 f14 = lambda x : -math.exp(-x)*math.sin(2*math.pi*x)
-t14=(0,4,6.5)
-
+t14 = (0, 4, 6.5)
 f15 = lambda x : (x**2-5*x+6)/(x**2+1)
-t15=(-5,5,6.5)
-
+t15 = (-5, 5, 6.5)
 f16 = lambda x : 2*(x-3)**2+math.exp(1)**(0.5*x**2)
-t16=(-3,3,85)
-
+t16 = (-3, 3, 85)
 f17 = lambda x : x**6-15*x**4+27*x**2+250
-t17=(-4, 4, 2520)
-
+t17 = (-4, 4, 2520)
 f18 = lambda x : (x-2)**2 if x<=3 else 2*math.log(x-2)+1
-t18=(0,6,4)
-
+t18 = (0, 6, 4)
 f19 = lambda x : -x+math.sin(3*x)-1
-t19=(0, 6.5, 4)
+t19 = (0, 6.5, 4)
+f20 = lambda x : (math.sin(x)-x)*math.exp(-(x**2))
+t20 = (-10, 10, 1.3)
 
-f20=lambda x : (math.sin(x)-x)*math.exp(-(x**2))
-t20=(-10, 10, 1.3)
 
 
 
@@ -52,13 +58,13 @@ L = 0
 def fun(x):
       y=[]
       for i in range(len(x)):
-           y.append(f19(x[i]))                          #RICORDA!
+           y.append(f2(x[i]))                          #RICORDA
       return y
 
 
 def z(x):
     global minimo
-    val = f19(x)                                        #RICORDA!
+    val = f2(x)                                        #RICORDA!
     if(val < minimo):
         minimo = val
     return val
@@ -105,6 +111,8 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
     while True:
         #print("numero di iterazioni:" , k)
         min_values = trova_min_Ri(x_intervals, L)
+        if len(min_values)==0:
+            break
         interval1 = x_intervals[min_values[0][0]]
         xt_new1 = ((interval1[0] + interval1[1]) / 2) - ((z(interval1[1]) - z(interval1[0])) / (2 * L))
         #print("xt1_new", xt_new1)
@@ -138,11 +146,10 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
     return x_values, [z(x) for x in x_values]
 
 def main():
-
     global minimo
-    a = t19[0]
-    b = t19[1]
-    L = t19[2]
+    a = t2[0]
+    b = t2[1]
+    L = t2[2]
     epsilon = 0.00001
     print("precisione", epsilon)
     intervallo_valori_plot = np.linspace(a, b, 1000)
