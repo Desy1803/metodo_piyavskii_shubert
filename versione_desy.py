@@ -58,13 +58,13 @@ L = 0
 def fun(x):
       y=[]
       for i in range(len(x)):
-           y.append(f2(x[i]))                          #RICORDA
+           y.append(fcost(x[i]))                          #RICORDA
       return y
 
 
 def z(x):
     global minimo
-    val = f2(x)                                        #RICORDA!
+    val = fcost(x)                                        #RICORDA!
     if(val < minimo):
         minimo = val
     return val
@@ -77,25 +77,35 @@ def calcola_R(x_interval, L):
 
 
 def trova_min_Ri(x_intervals, L):
-    min_R = float('inf')
-    min_idx = None
-    min_values = []
+    minimo1 = float('inf')
+    minimo2 = float('inf')
+    min_idx1 = None
+    min_idx2 = None
+    
     for i in range(len(x_intervals)):
         Ri = calcola_R(x_intervals[i], L)
-        #print("Ri: ", Ri, "i",i)
-        if Ri < min_R:
-            min_R = Ri
-            min_idx = i
-            min_values.clear()
-            min_values.append((i, Ri))
-        if Ri == min_R and min_idx!=i:
-            min_values.append((i, Ri))
-    #print(f"Minimo valore di R trovato: {min_values}")
+        
+        if Ri < minimo1:
+            minimo2 = minimo1
+            min_idx2 = min_idx1
+            minimo1 = Ri
+            min_idx1 = i
+        elif Ri < minimo2 and min_idx1 != i:
+            minimo2 = Ri
+            min_idx2 = i
+    
+    min_values = [(min_idx1, minimo1)]
+    if min_idx2 is not None:
+        min_values.append((min_idx2, minimo2))
+    
     return min_values
+
 
 
 def flatten(intervals):
     # appiattisce array di intervalli in array di valori
+    if len(intervals)==0:
+        return None
     values = [intervals[0][0]]  # lower del primo intervallo
     for interval in intervals:
         values.append(interval[1])  # tutti gli upper
@@ -105,30 +115,34 @@ def flatten(intervals):
 def metodo_piyavskii_shubert(a, b, L, epsilon):
     global minimo
     k = 1
-    maxIter = 10
+    maxIter = 12
     x_intervals = [(a, b)]  # array di intervalli
     
     while True:
-        #print("numero di iterazioni:" , k)
+        #print("Numero di iterazione:" , k)
+        interval2 = None
         min_values = trova_min_Ri(x_intervals, L)
-        if len(min_values)==0:
-            break
-        interval1 = x_intervals[min_values[0][0]]
+        interval1 = x_intervals[min_values[0][0]] 
         xt_new1 = ((interval1[0] + interval1[1]) / 2) - ((z(interval1[1]) - z(interval1[0])) / (2 * L))
         #print("xt1_new", xt_new1)
         #print("x_intervals before:", x_intervals)
-        #print("min_values:", min_values[0][0])
+        #print("min_values:", min_values)
         # dal punto xt_new, crea due nuovi intervalli e rimuovi il precedente
+        if len(min_values)==1 and min_values[0][1]> minimo:
+            break
         x_intervals.remove(interval1)
-        if min_values[0][1]< minimo:
+        if min_values[0][1] < minimo:
             t = min_values[0][0]
             x_intervals.insert(t, (interval1[0], xt_new1))
             x_intervals.insert(t+1, (xt_new1, interval1[1]))
 
-        if len(min_values)>1 and k>1:
+        if len(min_values)>1 and len(x_intervals)>1:
+            #print("between",x_intervals)
             interval2 = x_intervals[min_values[1][0]]
             xt_new2 = ((interval2[0] + interval2[1]) / 2) - ((z(interval2[1]) - z(interval2[0])) / (2 * L))
             #print("xt2_new", xt_new2)
+            if len(min_values)==1 and min_values[1][0]> minimo:
+                break
             x_intervals.remove(interval2)
             if min_values[1][1]< minimo:
                 t = min_values[1][0]
@@ -136,9 +150,14 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
                 x_intervals.insert(t, (xt_new2, interval2[1]))
         #print("x_intervals after:", x_intervals)
         if interval1[1] - interval1[0] <= epsilon :
-            x_values = flatten(x_intervals)
-            print("numero di iterazioni", k)
-            return x_values, [z(x) for x in x_values]
+            if interval2 != None and interval2[1] - interval2[0] <= epsilon :
+                x_values = flatten(x_intervals)
+                print("numero di iterazioni", k)
+                return x_values, [z(x) for x in x_values]
+            if interval2 == None:
+                x_values = flatten(x_intervals)
+                print("numero di iterazioni", k)
+                return x_values, [z(x) for x in x_values]
 
         k += 1
         
@@ -147,13 +166,11 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
 
 def main():
     global minimo
-    a = t2[0]
-    b = t2[1]
-    L = t2[2]
+    a = tcost[0]
+    b = tcost[1]
+    L = tcost[2]
     epsilon = 0.00001
     print("precisione", epsilon)
-    intervallo_valori_plot = np.linspace(a, b, 1000)
-    y = fun(intervallo_valori_plot)
     
     # Esecuzione dell'algoritmo e plot dei punti trovati
     start_time = time.time()
@@ -162,11 +179,15 @@ def main():
     execution_time = end_time - start_time
 
     print("Tempo di esecuzione:", execution_time, "secondi")
-    minimo_z = minimo
+    minimo_z = min(z_values)
     min_idx = z_values.index(minimo_z)
     minimo_x = x_values[min_idx]
     print("x: ", minimo_x)
     print("y: ", minimo_z)
+    intervallo_valori_plot = np.linspace(a, b, 100000)
+    y = fun(intervallo_valori_plot)
+    
+    
     fig, ax = plt.subplots(figsize=(10, 6))
     
     # Plot della funzione obiettivo
