@@ -195,26 +195,18 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
         interval1 = x_intervals[min_values[0][0]] 
         xt_new1 = ((interval1[0] + interval1[1]) / 2) - ((z(interval1[1]) - z(interval1[0])) / (2 * L))
         
-        if len(min_values) == 1 and min_values[0][1] > minimo:
-            print("qui")
-            break
         x_intervals.remove(interval1)
-        if min_values[0][1] < minimo:
-            t = min_values[0][0]
-            x_intervals.insert(t, (interval1[0], xt_new1))
-            x_intervals.insert(t+1, (xt_new1, interval1[1]))
+        t = min_values[0][0]
+        x_intervals.insert(t, (interval1[0], xt_new1))
+        x_intervals.insert(t+1, (xt_new1, interval1[1]))
         #print("x_intervals between: ", x_intervals)
         if len(min_values) > 1 and len(x_intervals) > 1:
             interval2 = x_intervals[min_values[1][0]]
             xt_new2 = ((interval2[0] + interval2[1]) / 2) - ((z(interval2[1]) - z(interval2[0])) / (2 * L))
-            if len(min_values) == 1 and min_values[1][0] > minimo:
-                print("qui2")
-                break
             x_intervals.remove(interval2)
-            if min_values[1][1] < minimo:
-                t = min_values[1][0]
-                x_intervals.insert(t, (interval2[0], xt_new2))
-                x_intervals.insert(t, (xt_new2, interval2[1]))
+            t = min_values[1][0]
+            x_intervals.insert(t, (interval2[0], xt_new2))
+            x_intervals.insert(t, (xt_new2, interval2[1]))
         #print("x_intervals after: ", x_intervals)
         if interval1[1] - interval1[0] <= epsilon:
             if interval2 != None and interval2[1] - interval2[0] <= epsilon :
@@ -234,10 +226,14 @@ def metodo_piyavskii_shubert(a, b, L, epsilon):
     return x_values, [z(x) for x in x_values]
 
 def main(func_name):
-    selection_function(func_name)
-    selection_function_np(func_name)
+    
     global t
     global minimo
+    
+        
+    selection_function(func_name)
+    selection_function_np(func_name)
+    
     a = t[0]
     b = t[1]
     L = t[2]
@@ -254,7 +250,9 @@ def main(func_name):
     minimo_x = x_values[min_idx]
     print("x: ", minimo_x)
     print("y: ", minimo_z)
-    intervallo_valori_plot = np.linspace(a, b, 10000)
+
+    
+    intervallo_valori_plot = np.linspace(a, b, 1000000)
     y = fun(intervallo_valori_plot)
     
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -267,5 +265,6 @@ def main(func_name):
     ax.legend()
     plt.grid(True)
     plt.show()
-    
-main("f19")
+
+   
+main("f2")
